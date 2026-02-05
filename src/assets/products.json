@@ -1,1 +1,70 @@
-{}
+{
+  "products": [
+    {
+      "id": 1,
+      "title": "Enim quibusdam lauda",
+      "category": "toys",
+      "price": "548",
+      "description": "Itaque voluptatem ne",
+      "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770302464/qwpnyxhhjh8tcvbe7jdj.jpg"
+    },
+    {
+      "id": "e7b8dcf1-8721-4240-bd6b-f36b1483ecb6",
+      "title": "Sunt velit alias q",
+      "category": "home",
+      "price": "378",
+      "description": "Temporibus Nam elit",
+      "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770302610/ww1enohx7eppjp9zydnk.jpg"
+    },
+    {
+      "id": "6070108b-ef45-48a2-b9ac-ea12fc1acb6d",
+      "title": "Maiores nihil commod",
+      "category": "sports",
+      "price": "173",
+      "description": "Incidunt sunt assum",
+      "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770302646/ywfde5rkmdddc0uqgmfb.jpg"
+    },
+    {
+      "id": "e0ce734d-0783-4598-9fb5-9286e0667e8d",
+      "title": "Ipsam illum dolores",
+      "category": "electronics",
+      "price": "348",
+      "description": "Dolore assumenda lab",
+      "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770302660/y1tljanopu0qpuu5oodl.jpg"
+    }
+  ],
+  "metadata": {
+    "total": 6,
+    "page": 1,
+    "perPage": 4,
+    "totalPages": 2
+  },
+  "filters": {
+    "sortOptions": [
+      {
+        "label": "A - Z",
+        "value": "name_asc"
+      },
+      {
+        "label": "Z - A",
+        "value": "name_desc"
+      },
+      {
+        "label": "Price: Low to High",
+        "value": "price_asc"
+      },
+      {
+        "label": "Price: High to Low",
+        "value": "price_desc"
+      }
+    ],
+    "categories": [
+      "Clothing",
+      "Electronics",
+      "Home & Garden",
+      "Sports & Outdoors",
+      "Books & Media",
+      "Toys & Games"
+    ]
+  }
+}
