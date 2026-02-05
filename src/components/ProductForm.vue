@@ -104,7 +104,7 @@ const handleSubmit = async () => {
       <!-- Close Button -->
       <button
         @click="handleClose"
-        class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800 transition-colors"
+        class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800"
       >
         <i class="fas fa-times text-xl"></i>
       </button>
@@ -113,7 +113,7 @@ const handleSubmit = async () => {
       <div class="p-8 h-[95vh] overflow-y-scroll">
         <div class="mb-6">
           <h2
-            class="w-full px-4 py-3 text-xl font-medium text-gray-900 outline-none"
+            class="w-full px-4 py-3 text-2xl font-medium text-gray-900 outline-none"
           >
             Add an Item
           </h2>
@@ -168,7 +168,7 @@ const handleSubmit = async () => {
               name="title"
               type="text"
               placeholder=""
-              class="w-full px-4 py-3 border-2 border-blue-400 rounded text-gray-900 outline-none focus:border-blue-500 transition-colors"
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded text-gray-900 outline-none focus:border-gray-300"
             />
           </div>
 
@@ -183,7 +183,7 @@ const handleSubmit = async () => {
               v-model="form.description"
               name="description"
               id="description"
-              class="w-full px-4 py-3 border-2 border-blue-400 rounded text-gray-900 outline-none focus:border-blue-500 transition-colors resize-none"
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded text-gray-900 outline-none focus:border-gray-300 resize-none"
             ></textarea>
           </div>
 
@@ -197,7 +197,7 @@ const handleSubmit = async () => {
                 v-model="form.category"
                 name="category"
                 id="category"
-                class="w-full px-4 py-3 border-2 border-blue-400 rounded text-gray-400 outline-none focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-white"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded text-gray-400 outline-none focus:border-gray-300 cursor-pointer appearance-none bg-white"
               >
                 <option value="">Select</option>
                 <option value="clothing">Clothing</option>
@@ -238,7 +238,7 @@ const handleSubmit = async () => {
                 id="price"
                 name="price"
                 placeholder="00.00"
-                class="w-full pl-8 pr-4 py-3 border-2 border-blue-400 rounded text-gray-400 text-right outline-none focus:border-blue-500 transition-colors"
+                class="w-full pl-8 pr-4 py-3 border-2 border-gray-200 rounded text-gray-400 text-right outline-none focus:border-gray-300"
               />
             </div>
           </div>
@@ -247,7 +247,7 @@ const handleSubmit = async () => {
           <input
             type="submit"
             value="Upload item"
-            class="w-full py-3 rounded font-medium bg-green-300 hover:bg-green-400 text-gray-800 border-2 border-blue-400 transition-colors"
+            class="w-full py-3 cursor-pointer rounded font-medium bg-green-200 hover:bg-green-300 text-gray-800"
           />
         </form>
       </div>

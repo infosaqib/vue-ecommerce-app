@@ -1,22 +1,6 @@
 {
   "products": [
     {
-      "id": 1,
-      "title": "Enim quibusdam lauda",
-      "category": "toys",
-      "price": "548",
-      "description": "Itaque voluptatem ne",
-      "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770302464/qwpnyxhhjh8tcvbe7jdj.jpg"
-    },
-    {
-      "id": "e7b8dcf1-8721-4240-bd6b-f36b1483ecb6",
-      "title": "Sunt velit alias q",
-      "category": "home",
-      "price": "378",
-      "description": "Temporibus Nam elit",
-      "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770302610/ww1enohx7eppjp9zydnk.jpg"
-    },
-    {
       "id": "6070108b-ef45-48a2-b9ac-ea12fc1acb6d",
       "title": "Maiores nihil commod",
       "category": "sports",
@@ -31,6 +15,22 @@
       "price": "348",
       "description": "Dolore assumenda lab",
       "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770302660/y1tljanopu0qpuu5oodl.jpg"
+    },
+    {
+      "id": "f0330ffd-58d6-4dba-a3e6-0e4bdeadcd6f",
+      "title": "Elit sint in ipsam ",
+      "category": "clothing",
+      "price": "476",
+      "description": "Et magnam sapiente a",
+      "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770305112/svikoxilc6tgd4hcyeem.jpg"
+    },
+    {
+      "id": "a1efdc17-44ec-4d6e-abd0-e57af8e70c05",
+      "title": "Ut voluptatem dolor ",
+      "category": "other",
+      "price": "156",
+      "description": "Voluptate sapiente n",
+      "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770305501/vft2manvhp7kki6gykqc.jpg"
     }
   ],
   "metadata": {
