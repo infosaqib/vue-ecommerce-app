@@ -3,42 +3,12 @@ import { computed, reactive, onMounted, ref } from "vue";
 import ProductForm from "@/components/ProductForm.vue";
 import axios from "axios";
 
-const state = reactive({
-  products: [],
-});
-
 const search = ref("");
 const isPopupOpen = ref(false);
+const sortBy = ref("price-low");
 
-// Fetch products from API
-const fetchProducts = async () => {
-  try {
-    const res = await axios.get("/api/products");
-    state.products = res.data;
-    console.log("Successfully fetched products", state.products);
-  } catch (error) {
-    console.error("Error fetching products: ", error);
-  }
-};
-
-// Delete product and refresh UI
-const deleteItem = async (productId) => {
-  try {
-    const confirm = window.confirm("Delete this product?");
-    if (confirm) {
-      await axios.delete(`/api/products/${productId}`);
-      // Remove the product from state
-      state.products = state.products.filter((p) => p.id !== productId);
-      console.log("Product deleted successfully");
-    }
-  } catch (error) {
-    console.error("Error deleting product: ", error);
-  }
-};
-
-// Load products on mount
-onMounted(() => {
-  fetchProducts();
+const state = reactive({
+  products: [],
 });
 
 const openPopup = () => {
@@ -49,44 +19,64 @@ const closePopup = () => {
   isPopupOpen.value = false;
 };
 
-// Refresh products after form submission
-const handleSubmit = async () => {
-  console.log("Form submitted");
-  closePopup();
-  // Fetch updated products list
-  await fetchProducts();
+const sortProducts = () => {
+  if (sortBy.value === "price-low") {
+    return state.products.sort((a, b) => a.price - b.price);
+  }
+  if (sortBy.value === "price-high") {
+    return state.products.sort((a, b) => b.price - a.price);
+  }
+  if (sortBy.value === "name-az") {
+    return state.products.sort((a, b) => a.title.localeCompare(b.title));
+  }
+  if (sortBy.value === "name-za") {
+    return state.products.sort((a, b) => b.title.localeCompare(a.title));
+  }
 };
 
-const handlePhotoUpload = () => {
-  console.log("Photo upload triggered");
-  // Add your photo upload logic here
+const fetchProducts = async () => {
+  try {
+    const res = await axios.get("/api/products");
+    state.products = res.data;
+
+    sortProducts();
+  } catch (error) {
+    console.error("Error fetching products: ", error);
+  }
+};
+
+const deleteItem = async (productId) => {
+  try {
+    const confirm = window.confirm("Delete this product?");
+    if (confirm) {
+      await axios.delete(`/api/products/${productId}`);
+      state.products = state.products.filter((p) => p.id !== productId);
+      console.log("Product deleted successfully");
+    }
+  } catch (error) {
+    console.error("Error deleting product: ", error);
+  }
 };
 
 const filterProducts = computed(() => {
-  if (!search.value) return state.products;  
+  if (!search.value) return state.products;
 
   return state.products.filter((product) => {
     return product.title?.toLowerCase().includes(search.value.toLowerCase());
   });
 });
+
+onMounted(() => {
+  fetchProducts();
+});
 </script>
 
 <template>
-  <ProductForm
-    :is-open="isPopupOpen"
-    :as-popup="true"
-    @close="closePopup"
-    @submit="handleSubmit"
-    @upload-photo="handlePhotoUpload"
-  />
+  <ProductForm :is-open="isPopupOpen" :as-popup="true" @close="closePopup" />
 
   <div class="container mx-auto px-4 py-8 max-w-7xl">
     <!-- Header Section -->
-    <header class="mb-8">
-      <h1 class="text-2xl font-semibold text-gray-800">
-        Product listing - Sidebar Filter
-      </h1>
-    </header>
+    <header class="mb-8"></header>
 
     <!-- Search and Controls Bar -->
     <div
@@ -103,65 +93,24 @@ const filterProducts = computed(() => {
             name="search"
             v-model="search"
           />
-          <i class="pi pi-search"></i>
+          <!-- <i class="pi pi-search"></i> -->
         </div>
       </div>
 
       <!-- Sort and Sell Button -->
       <div class="flex gap-3 w-full sm:w-auto">
         <!-- Sort Dropdown -->
-        <div class="flex-1 sm:flex-initial relative">
-          <button
-            id="sortButton"
-            class="w-full sm:w-auto px-4 py-3 border-2 border-gray-200 rounded-lg bg-white hover:bg-gray-50 flex items-center justify-between gap-8"
+        <div class="flex-1 sm:flex-initial">
+          <select
+            @change="sortProducts"
+            v-model="sortBy"
+            class="w-full sm:w-auto px-4 py-3 border-2 border-gray-200 rounded-lg bg-white hover:bg-gray-50 focus:outline-none cursor-pointer"
           >
-            <span class="text-gray-700">
-              <span class="font-medium">Sort by</span>
-              <span class="ml-2" id="sortLabel">Price: Low to High</span>
-            </span>
-            <i class="fas fa-chevron-down text-gray-600 text-sm"></i>
-          </button>
-
-          <!-- Dropdown Menu -->
-          <div
-            id="sortDropdown"
-            class="hidden absolute top-full mt-2 right-0 bg-white border-2 border-gray-200 rounded-lg shadow-lg z-10 min-w-[200px]"
-          >
-            <ul class="py-1">
-              <li>
-                <button
-                  class="w-full px-4 py-2 text-left hover:bg-blue-50 sort-option"
-                  data-value="price-low"
-                >
-                  A - Z
-                </button>
-              </li>
-              <li>
-                <button
-                  class="w-full px-4 py-2 text-left hover:bg-blue-50 sort-option"
-                  data-value="price-high"
-                >
-                  Z - A
-                </button>
-              </li>
-              <li>
-                <button
-                  class="w-full px-4 py-2 text-left hover:bg-blue-50 sort-option"
-                  data-value="name-az"
-                >
-                  Price: Low to High
-                </button>
-              </li>
-              <li>
-                <button
-                  class="w-full px-4 py-2 text-left hover:bg-blue-50 sort-option"
-                  data-value="name-za"
-                >
-                  Price: High to Low
-                </button>
-              </li>
-            </ul>
-          </div>
+            <option value="name-az">A - Z</option>
+            <option value="name-za">Z - A</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
         </div>
 
         <!-- Sell Item Button -->
