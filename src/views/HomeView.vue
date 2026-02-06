@@ -7,7 +7,7 @@ const state = reactive({
   products: [],
 });
 
-const searchInput = ref("");
+const search = ref("");
 const isPopupOpen = ref(false);
 
 // Fetch products from API
@@ -61,6 +61,14 @@ const handlePhotoUpload = () => {
   console.log("Photo upload triggered");
   // Add your photo upload logic here
 };
+
+const filterProducts = computed(() => {
+  if (!search.value) return state.products;  
+
+  return state.products.filter((product) => {
+    return product.title?.toLowerCase().includes(search.value.toLowerCase());
+  });
+});
 </script>
 
 <template>
@@ -91,14 +99,11 @@ const handlePhotoUpload = () => {
             type="text"
             placeholder="Search"
             class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none"
-            id="searchInput"
-            v-model="searchInput"
+            id="search"
+            name="search"
+            v-model="search"
           />
-          <button
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800"
-          >
-            <i class="pi pi-search"></i>
-          </button>
+          <i class="pi pi-search"></i>
         </div>
       </div>
 
@@ -170,14 +175,17 @@ const handlePhotoUpload = () => {
       </div>
     </div>
 
+    <div v-if="filterProducts.length === 0" class="py-6">
+      <p class="text-gray-400 text-center">No Products Found</p>
+    </div>
     <!-- Product Grid -->
     <div
+      v-else
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8"
     >
       <!-- Product Card -->
       <div
-        :product-id="product.id"
-        v-for="product in state.products"
+        v-for="product in filterProducts"
         :key="product.id"
         class="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
       >
