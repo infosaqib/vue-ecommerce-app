@@ -7,9 +7,15 @@ const search = ref("");
 const isPopupOpen = ref(false);
 const sortBy = ref("price-low");
 const editingProduct = ref(null);
+const isCartOpen = ref(false);
+
+const toggleCart = () => {
+  isCartOpen.value = !isCartOpen.value;
+};
 
 const state = reactive({
   products: [],
+  cart: [],
 });
 
 const openPopup = () => {
@@ -38,8 +44,27 @@ const sortProducts = () => {
 const OpenEditForm = async (product) => {
   editingProduct.value = product;
   console.log(product.id);
-  
+
   openPopup();
+};
+
+const getCartItems = () => {
+  const cart = JSON.parse(localStorage.getItem("products")) || [];
+  state.cart = cart;
+  return cart;
+};
+
+const addToCart = (product) => {
+  const cartItems = getCartItems();
+  cartItems.push(product);
+  localStorage.setItem("products", JSON.stringify(cartItems));
+};
+
+const removeFromCart = (productId) => {
+  const cart = getCartItems();
+  const updatedCart = cart.filter((item) => item.id !== productId);
+  localStorage.setItem("products", JSON.stringify(updatedCart));
+  state.cart = updatedCart;
 };
 
 const fetchProducts = async () => {
@@ -54,11 +79,17 @@ const fetchProducts = async () => {
 };
 
 const handleSubmit = async (product) => {
-  if (editingProduct) {
+  if (editingProduct.value) {
     try {
       await axios.put(`/api/products/${product.id}`, product);
       console.log("Product updated successfully");
-      state.products.push(product);
+
+      const index = state.products.findIndex((p) => p.id === product.id);
+
+      if (index !== -1) {
+        state.products[index] = product;
+      }
+      editingProduct.value = null;
     } catch (error) {
       console.error("Product was not updated:", error);
     }
@@ -96,6 +127,7 @@ const filterProducts = computed(() => {
 
 onMounted(() => {
   fetchProducts();
+  getCartItems();
 });
 </script>
 
@@ -131,6 +163,74 @@ onMounted(() => {
         </div>
       </div>
 
+      <div class="relative">
+        <!-- CART BUTTON -->
+        <button
+          id="myCartDropdownButton1"
+          data-dropdown-toggle="myCartDropdown1"
+          type="button"
+          @click="toggleCart"
+          class="inline-flex items-center gap-1 rounded-lg justify-center p-2 hover:bg-gray-100 text-sm font-medium text-gray-800"
+        >
+          <span class="sr-only">Cart</span>
+
+          <!-- Cart Icon -->
+          <svg
+            class="w-5 h-5"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4m8-4a2 2 0 1 0 0 4M7.312 7H19l-2.438 6H9.312"
+            />
+          </svg>
+
+          <span class="hidden sm:inline">My Cart</span>
+
+          <i class="pi pi-chevron-down text-xs ml-1"></i>
+        </button>
+
+        <!-- CART DROPDOWN -->
+        <div
+          v-if="isCartOpen"
+          id="myCartDropdown1"
+          class="absolute flex flex-col gap-4 top-12 z-20 w-80 rounded-xl bg-white p-4 shadow-lg border border-gray-200"
+        >
+          <!-- Cart Item -->
+          <div
+            v-for="cartProduct in state.cart"
+            :key="cartProduct.id"
+            class="flex items-center justify-between border-b pb-2"
+          >
+            <div>
+              <p class="text-sm font-semibold text-gray-800">
+                {{ cartProduct.title }}
+              </p>
+
+              <p class="text-xs text-gray-500">£{{ cartProduct.price }}</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <img
+                :src="cartProduct.image"
+                :alt="cartProduct.title"
+                class="h-8 w-8 rounded-full"
+              />
+              <button
+                @click="removeFromCart(cartProduct.id)"
+                class="text-gray-500 hover:text-gray-600 transition"
+              >
+                <i class="pi pi-times-circle"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Sort and Sell Button -->
       <div class="flex gap-3 w-full sm:w-auto">
         <!-- Sort Dropdown -->
@@ -196,9 +296,10 @@ onMounted(() => {
             </div>
             <!-- Action Buttons -->
             <div class="flex items-center gap-2">
-              <button
-                class="text-gray-600 hover:text-blue-600"
-                title="Add to cart"
+              <button :disabled="state.cart.some(item => item.title === product.title)"
+                @click="addToCart(product)"
+                class="text-gray-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Add to cart" 
               >
                 <i class="pi pi-cart-plus text-lg"></i>
               </button>
