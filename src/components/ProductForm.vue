@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, defineEmits, reactive, ref } from "vue";
+import { defineProps, defineEmits, reactive, watch, ref } from "vue";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
@@ -7,6 +7,10 @@ const file = ref(null);
 const emit = defineEmits(["close", "submit"]);
 
 const props = defineProps({
+  product: {
+    type: Object,
+    default: null,
+  },
   isOpen: {
     type: Boolean,
     default: false,
@@ -25,8 +29,17 @@ const form = reactive({
   uploadedImage: "",
 });
 
+const clearForm = async () => {
+  form.title = "";
+  form.category = "";
+  form.price = 0;
+  form.description = "";
+  form.uploadedImage = "";
+};
+
 const handleClose = () => {
   emit("close");
+  clearForm();
 };
 
 function triggerFileInput() {
@@ -65,7 +78,7 @@ const handleSubmit = async () => {
   }
 
   const newProduct = {
-    id: uuidv4(),
+    id: props.product ? props.product.id : uuidv4(),
     title: form.title,
     category: form.category,
     price: form.price,
@@ -76,32 +89,43 @@ const handleSubmit = async () => {
   emit("submit", newProduct);
   emit("close");
 };
+
+watch(
+  () => props.product,
+  (newProduct) => {
+    if (newProduct) {
+      form.title = newProduct.title;
+      form.category = newProduct.category;
+      form.price = newProduct.price;
+      form.description = newProduct.description;
+      form.uploadedImage = newProduct.image;
+    } else {
+      clearForm();
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
-
   <div
     v-if="asPopup && isOpen"
     class="fixed inset-0 z-50 flex items-center justify-center p-4"
   >
-
     <div
       class="absolute inset-0 bg-black bg-opacity-50"
       @click="handleClose"
     ></div>
 
-
     <div
       class="relative bg-white rounded-lg w-full max-w-[700px] shadow-2xl z-10"
     >
-
       <button
         @click="handleClose"
         class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800"
       >
         <i class="fas fa-times text-xl"></i>
       </button>
-
 
       <div class="p-8 h-[95vh] overflow-y-scroll">
         <div class="mb-6">

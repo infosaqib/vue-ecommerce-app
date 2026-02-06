@@ -2,7 +2,7 @@
   "products": [
     {
       "id": "6070108b-ef45-48a2-b9ac-ea12fc1acb6d",
-      "title": "Maiores nihil commod",
+      "title": "Maiores nihil commodddd",
       "category": "sports",
       "price": "173",
       "description": "Incidunt sunt assum",
@@ -39,40 +39,14 @@
       "price": "672",
       "description": "Et tempor molestiae ",
       "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770364832/ogrkn4ns1hn87dd7cgds.jpg"
+    },
+    {
+      "id": "45cc4bcc-11fb-4391-866c-c8e3980613ce",
+      "title": "Jeans",
+      "category": "clothing",
+      "price": "33",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur non feugiat metus. Etiam dictum id dolor eget feugiat. Vivamus sagittis faucibus dignissim. Morbi eget lacinia leo, vitae dignissim tellus. Suspendisse in mattis orci, vitae varius tellus. Aenean euismod commodo rutrum. Sed tincidunt fringilla fringilla. Cras arcu lorem, suscipit vel mattis dictum, placerat id magna. Nunc.",
+      "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770365451/xmximpzz6qxzbmii01ec.jpg"
     }
-  ],
-  "metadata": {
-    "total": 6,
-    "page": 1,
-    "perPage": 4,
-    "totalPages": 2
-  },
-  "filters": {
-    "sortOptions": [
-      {
-        "label": "A - Z",
-        "value": "name_asc"
-      },
-      {
-        "label": "Z - A",
-        "value": "name_desc"
-      },
-      {
-        "label": "Price: Low to High",
-        "value": "price_asc"
-      },
-      {
-        "label": "Price: High to Low",
-        "value": "price_desc"
-      }
-    ],
-    "categories": [
-      "Clothing",
-      "Electronics",
-      "Home & Garden",
-      "Sports & Outdoors",
-      "Books & Media",
-      "Toys & Games"
-    ]
-  }
+  ]
 }

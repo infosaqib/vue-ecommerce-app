@@ -6,6 +6,7 @@ import axios from "axios";
 const search = ref("");
 const isPopupOpen = ref(false);
 const sortBy = ref("price-low");
+const editingProduct = ref(null);
 
 const state = reactive({
   products: [],
@@ -34,6 +35,13 @@ const sortProducts = () => {
   }
 };
 
+const OpenEditForm = async (product) => {
+  editingProduct.value = product;
+  console.log(product.id);
+  
+  openPopup();
+};
+
 const fetchProducts = async () => {
   try {
     const res = await axios.get("/api/products");
@@ -45,29 +53,23 @@ const fetchProducts = async () => {
   }
 };
 
-const handleNewProduct = async (product) => {
-  try {
-    await axios.post("/api/products", product);
-    console.log("Product created successfully");
-  } catch (error) {
-    console.error("Product was not created:", error);
-  }
-};
-
-const updateItem = async (productId) => {
-  const updatedProduct = {
-    title: form.title,
-    category: form.category,
-    price: form.price,
-    description: form.description,
-    image: form.uploadedImage,
-  };
-  try {
-    await axios.put(`/api/products/${productId}`, updatedProduct);
-    state.products = state.products.filter((p) => p.id !== productId);
-    console.log("Product updated successfully");
-  } catch (error) {
-    console.error("Error updating product: ", error);
+const handleSubmit = async (product) => {
+  if (editingProduct) {
+    try {
+      await axios.put(`/api/products/${product.id}`, product);
+      console.log("Product updated successfully");
+      state.products.push(product);
+    } catch (error) {
+      console.error("Product was not updated:", error);
+    }
+  } else {
+    try {
+      await axios.post("/api/products", product);
+      console.log("Product created successfully");
+      state.products.push(product);
+    } catch (error) {
+      console.error("Product was not created:", error);
+    }
   }
 };
 
@@ -101,8 +103,9 @@ onMounted(() => {
   <ProductForm
     :is-open="isPopupOpen"
     :as-popup="true"
+    :product="editingProduct"
     @close="closePopup"
-    @submit="handleNewProduct"
+    @submit="handleSubmit"
   />
 
   <div class="container mx-auto px-4 py-8 max-w-7xl">
@@ -176,7 +179,7 @@ onMounted(() => {
             class="w-full h-full object-cover"
           />
           <button
-            @click="updateItem(product.id)"
+            @click="OpenEditForm(product)"
             class="absolute top-2 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-green-300 hover:text-white transition-all shadow-md"
           >
             <i class="pi pi-pencil text-sm"></i>
