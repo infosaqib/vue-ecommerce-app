@@ -16,6 +16,8 @@ const toggleCart = () => {
 const state = reactive({
   products: [],
   cart: [],
+  currentPage: 1,
+  itemsLimit: 4,
 });
 
 const openPopup = () => {
@@ -26,19 +28,26 @@ const closePopup = () => {
   isPopupOpen.value = false;
 };
 
+const totalPages = computed(() => {
+  return Math.ceil(filteredProducts.value.length / state.itemsLimit) || 1;
+});
+
+const pageNumbers = computed(() => {
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+});
+
 const sortProducts = () => {
-  if (sortBy.value === "price-low") {
-    return state.products.sort((a, b) => a.price - b.price);
-  }
-  if (sortBy.value === "price-high") {
-    return state.products.sort((a, b) => b.price - a.price);
-  }
-  if (sortBy.value === "name-az") {
-    return state.products.sort((a, b) => a.title.localeCompare(b.title));
-  }
-  if (sortBy.value === "name-za") {
-    return state.products.sort((a, b) => b.title.localeCompare(a.title));
-  }
+  let sorted = [...state.products];
+  if (sortBy.value === "price-low") sorted.sort((a, b) => a.price - b.price);
+  if (sortBy.value === "price-high") sorted.sort((a, b) => b.price - a.price);
+  if (sortBy.value === "name-az")
+    sorted.sort((a, b) => a.title.localeCompare(b.title));
+  if (sortBy.value === "name-za")
+    sorted.sort((a, b) => b.title.localeCompare(a.title));
+  return sorted;
+};
+const handleSort = () => {
+  state.products = sortProducts();
 };
 
 const OpenEditForm = async (product) => {
@@ -56,8 +65,10 @@ const getCartItems = () => {
 
 const addToCart = (product) => {
   const cartItems = getCartItems();
+  if (cartItems.some((item) => item.id === product.id)) return;
   cartItems.push(product);
   localStorage.setItem("products", JSON.stringify(cartItems));
+  state.cart = cartItems;
 };
 
 const removeFromCart = (productId) => {
@@ -71,8 +82,7 @@ const fetchProducts = async () => {
   try {
     const res = await axios.get("/api/products");
     state.products = res.data;
-
-    sortProducts();
+    handleSort();
   } catch (error) {
     console.error("Error fetching products: ", error);
   }
@@ -116,18 +126,26 @@ const deleteItem = async (productId) => {
     console.error("Error deleting product: ", error);
   }
 };
+const filteredProducts = computed(() => {
+  let products = [...state.products];
+  if (search.value) {
+    products = products.filter((p) =>
+      p.title.toLowerCase().includes(search.value.toLowerCase()),
+    );
+  }
+  return products;
+});
 
-const filterProducts = computed(() => {
-  if (!search.value) return state.products;
-
-  return state.products.filter((product) => {
-    return product.title?.toLowerCase().includes(search.value.toLowerCase());
-  });
+const paginatedProducts = computed(() => {
+  const start = (state.currentPage - 1) * state.itemsLimit;
+  const end = start + state.itemsLimit;
+  return filteredProducts.value.slice(start, end);
 });
 
 onMounted(() => {
   fetchProducts();
   getCartItems();
+  console.log(state.products);
 });
 </script>
 
@@ -236,7 +254,7 @@ onMounted(() => {
         <!-- Sort Dropdown -->
         <div class="flex-1 sm:flex-initial">
           <select
-            @change="sortProducts"
+            @change="handleSort"
             v-model="sortBy"
             class="w-full sm:w-auto px-4 py-3 border-2 border-gray-200 rounded-lg bg-white hover:bg-gray-50 focus:outline-none cursor-pointer"
           >
@@ -258,7 +276,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div v-if="filterProducts.length === 0" class="py-6">
+    <div v-if="paginatedProducts.length === 0" class="py-6">
       <p class="text-gray-400 text-center">No Products Found</p>
     </div>
     <!-- Product Grid -->
@@ -268,7 +286,7 @@ onMounted(() => {
     >
       <!-- Product Card -->
       <div
-        v-for="product in filterProducts"
+        v-for="product in paginatedProducts"
         :key="product.id"
         class="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
       >
@@ -296,10 +314,13 @@ onMounted(() => {
             </div>
             <!-- Action Buttons -->
             <div class="flex items-center gap-2">
-              <button :disabled="state.cart.some(item => item.title === product.title)"
+              <button
+                :disabled="
+                  state.cart.some((item) => item.title === product.title)
+                "
                 @click="addToCart(product)"
                 class="text-gray-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Add to cart" 
+                title="Add to cart"
               >
                 <i class="pi pi-cart-plus text-lg"></i>
               </button>
@@ -317,14 +338,15 @@ onMounted(() => {
     </div>
 
     <!-- Pagination -->
-    <!-- Pagination Container -->
     <nav
       class="flex items-center justify-between w-full"
       aria-label="Pagination"
     >
-      <!-- Previous Button -->
+      <!-- Previous -->
       <button
-        class="flex items-center gap-2 text-gray-500 font-medium text-base hover:text-gray-700"
+        @click="state.currentPage = Math.max(1, state.currentPage - 1)"
+        :disabled="state.currentPage <= 1"
+        class="flex items-center gap-2 text-gray-500 font-medium text-base hover:text-gray-700 disabled:opacity-50"
       >
         <svg
           class="w-5 h-5"
@@ -344,38 +366,28 @@ onMounted(() => {
 
       <!-- Page Numbers -->
       <div class="flex items-center gap-2">
-        <!-- Page 1 -->
         <button
-          class="w-10 h-10 flex items-center justify-center rounded border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50"
+          v-for="page in pageNumbers"
+          :key="page"
+          @click="state.currentPage = page"
+          :class="[
+            'w-10 h-10 flex items-center justify-center rounded border text-sm font-medium',
+            state.currentPage === page
+              ? 'bg-gray-200 border-gray-400 text-gray-900'
+              : 'border-gray-300 text-gray-700 hover:bg-gray-50',
+          ]"
         >
-          1
-        </button>
-
-        <!-- Page 2 -->
-        <button
-          class="w-10 h-10 flex items-center justify-center rounded border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50"
-        >
-          2
-        </button>
-
-        <!-- Page 3 -->
-        <button
-          class="w-10 h-10 flex items-center justify-center rounded border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50"
-        >
-          3
-        </button>
-
-        <!-- Page 4 -->
-        <button
-          class="w-10 h-10 flex items-center justify-center rounded border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50"
-        >
-          4
+          {{ page }}
         </button>
       </div>
 
-      <!-- Next Button -->
+      <!-- Next -->
       <button
-        class="flex items-center gap-2 text-gray-500 font-medium text-base hover:text-gray-700"
+        @click="
+          state.currentPage = Math.min(totalPages, state.currentPage + 1)
+        "
+        :disabled="state.currentPage >= totalPages"
+        class="flex items-center gap-2 text-gray-500 font-medium text-base hover:text-gray-700 disabled:opacity-50"
       >
         <span>Next</span>
         <svg
