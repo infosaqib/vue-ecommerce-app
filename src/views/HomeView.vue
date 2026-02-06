@@ -45,6 +45,32 @@ const fetchProducts = async () => {
   }
 };
 
+const handleNewProduct = async (product) => {
+  try {
+    await axios.post("/api/products", product);
+    console.log("Product created successfully");
+  } catch (error) {
+    console.error("Product was not created:", error);
+  }
+};
+
+const updateItem = async (productId) => {
+  const updatedProduct = {
+    title: form.title,
+    category: form.category,
+    price: form.price,
+    description: form.description,
+    image: form.uploadedImage,
+  };
+  try {
+    await axios.put(`/api/products/${productId}`, updatedProduct);
+    state.products = state.products.filter((p) => p.id !== productId);
+    console.log("Product updated successfully");
+  } catch (error) {
+    console.error("Error updating product: ", error);
+  }
+};
+
 const deleteItem = async (productId) => {
   try {
     const confirm = window.confirm("Delete this product?");
@@ -72,7 +98,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <ProductForm :is-open="isPopupOpen" :as-popup="true" @close="closePopup" />
+  <ProductForm
+    :is-open="isPopupOpen"
+    :as-popup="true"
+    @close="closePopup"
+    @submit="handleNewProduct"
+  />
 
   <div class="container mx-auto px-4 py-8 max-w-7xl">
     <!-- Header Section -->
@@ -144,6 +175,12 @@ onMounted(() => {
             :alt="product.title"
             class="w-full h-full object-cover"
           />
+          <button
+            @click="updateItem(product.id)"
+            class="absolute top-2 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-green-300 hover:text-white transition-all shadow-md"
+          >
+            <i class="pi pi-pencil text-sm"></i>
+          </button>
         </div>
         <div class="p-4">
           <h3 class="text-gray-800 font-medium mb-2">{{ product?.title }}</h3>

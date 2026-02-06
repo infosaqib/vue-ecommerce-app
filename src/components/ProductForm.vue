@@ -1,8 +1,10 @@
 <script setup>
 import { defineProps, defineEmits, reactive, ref } from "vue";
 import axios from "axios";
-
 import { v4 as uuidv4 } from "uuid";
+
+const file = ref(null);
+const emit = defineEmits(["close", "submit"]);
 
 const props = defineProps({
   isOpen: {
@@ -15,13 +17,17 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["close"]);
+const form = reactive({
+  title: "",
+  category: "",
+  price: "",
+  description: "",
+  uploadedImage: "",
+});
 
 const handleClose = () => {
   emit("close");
 };
-
-const file = ref(null);
 
 function triggerFileInput() {
   if (file.value instanceof HTMLInputElement) {
@@ -30,8 +36,8 @@ function triggerFileInput() {
     console.error("fileInput ref is not an input element:", file.value);
   }
 }
-// Handle file selection
-async function handleFileUpload(event) {
+
+const handleFileUpload = async (event) => {
   file.value = event.target.files[0];
   if (!file.value) return;
 
@@ -50,15 +56,7 @@ async function handleFileUpload(event) {
   } catch (err) {
     console.error("Upload failed:", err);
   }
-}
-
-const form = reactive({
-  title: "",
-  category: "",
-  price: "",
-  description: "",
-  uploadedImage: "",
-});
+};
 
 const handleSubmit = async () => {
   if (!form.uploadedImage) {
@@ -75,33 +73,28 @@ const handleSubmit = async () => {
     image: form.uploadedImage,
   };
 
-  try {
-    await axios.post("/api/products", newProduct);
-    console.log("Product created successfully");
-  } catch (error) {
-    console.error("Product was not created:", error);
-  }
-  handleClose();
+  emit("submit", newProduct);
+  emit("close");
 };
 </script>
 
 <template>
-  <!-- Component can be used as popup or inline -->
+
   <div
     v-if="asPopup && isOpen"
     class="fixed inset-0 z-50 flex items-center justify-center p-4"
   >
-    <!-- Overlay - Independent -->
+
     <div
       class="absolute inset-0 bg-black bg-opacity-50"
       @click="handleClose"
     ></div>
 
-    <!-- Modal Container -->
+
     <div
       class="relative bg-white rounded-lg w-full max-w-[700px] shadow-2xl z-10"
     >
-      <!-- Close Button -->
+
       <button
         @click="handleClose"
         class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800"
@@ -109,7 +102,7 @@ const handleSubmit = async () => {
         <i class="fas fa-times text-xl"></i>
       </button>
 
-      <!-- Form Content -->
+
       <div class="p-8 h-[95vh] overflow-y-scroll">
         <div class="mb-6">
           <h2
