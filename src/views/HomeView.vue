@@ -12,6 +12,7 @@ const isCartOpen = ref(false);
 const toggleCart = () => {
   isCartOpen.value = !isCartOpen.value;
 };
+const cartCount = computed(() => state.cart.length);
 
 const state = reactive({
   products: [],
@@ -177,7 +178,7 @@ onMounted(() => {
             name="search"
             v-model="search"
           />
-          <!-- <i class="pi pi-search"></i> -->
+          <i class="pi pi-search absolute top-4 right-6"></i>
         </div>
       </div>
 
@@ -188,29 +189,30 @@ onMounted(() => {
           data-dropdown-toggle="myCartDropdown1"
           type="button"
           @click="toggleCart"
-          class="inline-flex items-center gap-1 rounded-lg justify-center p-2 hover:bg-gray-100 text-sm font-medium text-gray-800"
+          class="relative inline-flex items-center gap-1 rounded-lg justify-center p-2 text-sm font-medium text-gray-800"
         >
           <span class="sr-only">Cart</span>
 
           <!-- Cart Icon -->
           <svg
-            class="w-5 h-5"
             xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="w-6 h-6"
+            viewBox="0 0 16 16"
           >
             <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4m8-4a2 2 0 1 0 0 4M7.312 7H19l-2.438 6H9.312"
+              d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"
             />
           </svg>
 
-          <span class="hidden sm:inline">My Cart</span>
+          <span
+            v-if="cartCount > 0"
+            class="absolute top-0 right-0 sm:inline bg-red-500 rounded-full min-w-4 h-4 px-1 text-white text-xs flex items-center justify-center"
+          >
+            {{ cartCount }}
+          </span>
 
-          <i class="pi pi-chevron-down text-xs ml-1"></i>
+          <!-- <i class="pi pi-chevron-down text-xs ml-1"></i> -->
         </button>
 
         <!-- CART DROPDOWN -->
@@ -252,11 +254,16 @@ onMounted(() => {
       <!-- Sort and Sell Button -->
       <div class="flex gap-3 w-full sm:w-auto">
         <!-- Sort Dropdown -->
-        <div class="flex-1 sm:flex-initial">
+        <div class="flex flex-row items-center justify-center gap-4">
+          <p
+            class="font-lexend font-normal leading-[22px] tracking-normal"
+          >
+            Sort by
+          </p>
           <select
             @change="handleSort"
             v-model="sortBy"
-            class="w-full sm:w-auto px-4 py-3 border-2 border-gray-200 rounded-lg bg-white hover:bg-gray-50 focus:outline-none cursor-pointer"
+            class="w-full sm:w-auto px-4 py-3 border-2 border-gray-200 rounded-lg bg-white hover:bg-gray-50 focus:outline-none cursor-pointer font-lexend font-normal leading-[22px] tracking-normal"
           >
             <option value="name-az">A - Z</option>
             <option value="name-za">Z - A</option>
@@ -304,13 +311,22 @@ onMounted(() => {
           </button>
         </div>
         <div class="p-4">
-          <h3 class="text-gray-800 font-medium mb-2">{{ product?.title }}</h3>
-          <p class="text-xl font-semibold text-gray-900 mb-3">
+          <h3
+            class="text-[#171717] font-lexend font-light text-sm leading-[15px] tracking-normal "
+          >
+            {{ product?.title }}
+          </h3>
+          <p
+            class="text-[#171717] font-lexend font-normal text-base leading-[2rem] tracking-normal "
+          >
             £{{ product.price }}
           </p>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="text-sm text-gray-600">{{ product.category }}</span>
+              <span
+                class="text-neutral-900 font-lexend font-normal text-sm leading-5 tracking-normal"
+                >{{ product.category }}</span
+              >
             </div>
             <!-- Action Buttons -->
             <div class="flex items-center gap-2">
@@ -319,14 +335,14 @@ onMounted(() => {
                   state.cart.some((item) => item.title === product.title)
                 "
                 @click="addToCart(product)"
-                class="text-gray-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="w-9 h-9 text-black border border-[#E5E5E5] rounded p-2 hover:text-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Add to cart"
               >
                 <i class="pi pi-cart-plus text-lg"></i>
               </button>
               <button
                 @click="deleteItem(product.id)"
-                class="text-gray-600 hover:text-red-600"
+                class="w-9 h-9 text-black border border-[#E5E5E5] rounded p-2 hover:text-red-600"
                 title="Delete"
               >
                 <i class="pi pi-trash text-lg"></i>
@@ -346,19 +362,17 @@ onMounted(() => {
       <button
         @click="state.currentPage = Math.max(1, state.currentPage - 1)"
         :disabled="state.currentPage <= 1"
-        class="flex items-center gap-2 text-gray-500 font-medium text-base hover:text-gray-700 disabled:opacity-50"
+        class="flex items-center gap-2 text-black font-medium text-base disabled:opacity-50"
       >
         <svg
-          class="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          class="h-5 w-5"
+          viewBox="0 0 16 16"
         >
           <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 19l-7-7 7-7"
+            fill-rule="evenodd"
+            d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"
           />
         </svg>
         <span>Previous</span>
@@ -383,24 +397,20 @@ onMounted(() => {
 
       <!-- Next -->
       <button
-        @click="
-          state.currentPage = Math.min(totalPages, state.currentPage + 1)
-        "
+        @click="state.currentPage = Math.min(totalPages, state.currentPage + 1)"
         :disabled="state.currentPage >= totalPages"
-        class="flex items-center gap-2 text-gray-500 font-medium text-base hover:text-gray-700 disabled:opacity-50"
+        class="flex items-center gap-2 text-black font-medium text-base disabled:opacity-50"
       >
         <span>Next</span>
         <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
           class="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+          viewBox="0 0 16 16"
         >
           <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
+            fill-rule="evenodd"
+            d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"
           />
         </svg>
       </button>

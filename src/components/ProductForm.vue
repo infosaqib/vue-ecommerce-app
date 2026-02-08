@@ -1,10 +1,11 @@
 <script setup>
-import { defineProps, defineEmits, reactive, watch, ref } from "vue";
+import { defineProps, defineEmits, reactive, watch, ref, computed } from "vue";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
 const file = ref(null);
 const emit = defineEmits(["close", "submit"]);
+const isEditMode = computed(() => !!props.product);
 
 const props = defineProps({
   product: {
@@ -124,7 +125,7 @@ watch(
         @click="handleClose"
         class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800"
       >
-        <i class="fas fa-times text-xl"></i>
+        <i class="pi pi-times text-xl"></i>
       </button>
 
       <div class="p-8 h-[95vh] overflow-y-scroll">
@@ -132,7 +133,7 @@ watch(
           <h2
             class="w-full px-4 py-3 text-2xl font-medium text-gray-900 outline-none"
           >
-            Add an Item
+            {{ isEditMode ? "Update an item" : "Add an item" }}
           </h2>
         </div>
         <form @submit.prevent="handleSubmit">
@@ -263,7 +264,7 @@ watch(
           <!-- Submit Button -->
           <input
             type="submit"
-            value="Upload item"
+            :value="isEditMode ? 'Update item' : 'Upload item'"
             class="w-full py-3 cursor-pointer rounded font-medium bg-green-200 hover:bg-green-300 text-gray-800"
           />
         </form>
