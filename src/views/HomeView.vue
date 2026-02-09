@@ -3,6 +3,7 @@ import { computed, reactive, onMounted, ref } from "vue";
 import ProductForm from "@/components/ProductForm.vue";
 import axios from "axios";
 import { useToast } from "vue-toastification";
+import { useFetchProducts } from "@/composables/useAPIs";
 
 const toast = useToast();
 const search = ref("");
@@ -80,15 +81,15 @@ const removeFromCart = (productId) => {
   state.cart = updatedCart;
 };
 
-const fetchProducts = async () => {
-  try {
-    const res = await axios.get("/api/products");
-    state.products = res.data;
-    handleSort();
-  } catch (error) {
-    console.error("Error fetching products: ", error);
-  }
-};
+// const fetchProducts = async () => {
+//   try {
+//     const res = await axios.get("/api/products");
+//     state.products = res.data;
+//     handleSort();
+//   } catch (error) {
+//     console.error("Error fetching products: ", error);
+//   }
+// };
 
 const handleSubmit = async (product) => {
   if (editingProduct.value) {
@@ -148,8 +149,10 @@ const paginatedProducts = computed(() => {
   );
 });
 
-onMounted(() => {
-  fetchProducts();
+onMounted(async () => {
+  const products = await useFetchProducts();
+  state.products = products || [];
+  handleSort();
   getCartItems();
 });
 </script>
