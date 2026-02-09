@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, defineEmits, reactive, watch, ref, computed } from "vue";
+import {reactive, watch, ref, computed } from "vue";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
@@ -151,7 +151,7 @@ watch(
               <!-- Show "Upload photo" text only if no image -->
               <p
                 v-if="!form.uploadedImage"
-                class="p-4 border border-gray-100 rounded text-gray-700"
+                class="p-4 border border-lime-200 rounded text-gray-700"
               >
                 Upload photo
               </p>

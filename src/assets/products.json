@@ -1,14 +1,6 @@
 {
   "products": [
     {
-      "id": "6070108b-ef45-48a2-b9ac-ea12fc1acb6d",
-      "title": "Maiores nihil commodddd",
-      "category": "sports",
-      "price": "173",
-      "description": "Incidunt sunt assum",
-      "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770302646/ywfde5rkmdddc0uqgmfb.jpg"
-    },
-    {
       "id": "e0ce734d-0783-4598-9fb5-9286e0667e8d",
       "title": "Ipsam illum dolores",
       "category": "electronics",
@@ -42,11 +34,27 @@
     },
     {
       "id": "45cc4bcc-11fb-4391-866c-c8e3980613ce",
-      "title": "Jeans",
+      "title": "Jeans pents   ",
       "category": "clothing",
       "price": "33",
       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur non feugiat metus. Etiam dictum id dolor eget feugiat. Vivamus sagittis faucibus dignissim. Morbi eget lacinia leo, vitae dignissim tellus. Suspendisse in mattis orci, vitae varius tellus. Aenean euismod commodo rutrum. Sed tincidunt fringilla fringilla. Cras arcu lorem, suscipit vel mattis dictum, placerat id magna. Nunc.",
       "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770365451/xmximpzz6qxzbmii01ec.jpg"
+    },
+    {
+      "id": "9a520c1f-e7ec-4139-a3c9-21215c37b09a",
+      "title": "Kitchen utesils",
+      "category": "home",
+      "price": "340",
+      "description": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim\n",
+      "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770615895/jirwf5gzz7n6ouprkrty.webp"
+    },
+    {
+      "id": "4f7b9d0b-780d-457f-a8cb-09dbf70958b0",
+      "title": "Fugiat aperiam fugia",
+      "category": "toys",
+      "price": "34",
+      "description": "Numquam laudantium ",
+      "image": "https://res.cloudinary.com/dqrrfkooh/image/upload/v1770616410/awfukarwisp3y8f8gr4b.avif"
     }
   ]
 }

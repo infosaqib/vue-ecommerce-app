@@ -2,7 +2,9 @@
 import { computed, reactive, onMounted, ref } from "vue";
 import ProductForm from "@/components/ProductForm.vue";
 import axios from "axios";
+import { useToast } from "vue-toastification";
 
+const toast = useToast();
 const search = ref("");
 const isPopupOpen = ref(false);
 const sortBy = ref("price-low");
@@ -30,7 +32,7 @@ const closePopup = () => {
 };
 
 const totalPages = computed(() => {
-  return Math.ceil(filteredProducts.value.length / state.itemsLimit) || 1;
+  return Math.ceil(state.products.length / state.itemsLimit) || 1;
 });
 
 const pageNumbers = computed(() => {
@@ -53,7 +55,6 @@ const handleSort = () => {
 
 const OpenEditForm = async (product) => {
   editingProduct.value = product;
-  console.log(product.id);
 
   openPopup();
 };
@@ -93,7 +94,6 @@ const handleSubmit = async (product) => {
   if (editingProduct.value) {
     try {
       await axios.put(`/api/products/${product.id}`, product);
-      console.log("Product updated successfully");
 
       const index = state.products.findIndex((p) => p.id === product.id);
 
@@ -101,16 +101,19 @@ const handleSubmit = async (product) => {
         state.products[index] = product;
       }
       editingProduct.value = null;
+      toast.success("Product updated successfully");
     } catch (error) {
-      console.error("Product was not updated:", error);
+      toast.error("Product was not updated");
+      console.error("Error updating product: ", error);
     }
   } else {
     try {
       await axios.post("/api/products", product);
-      console.log("Product created successfully");
       state.products.push(product);
+      toast.success("Product created successfully");
     } catch (error) {
-      console.error("Product was not created:", error);
+      toast.error("Product was not created");
+      console.error("Error creating product: ", error);
     }
   }
 };
@@ -121,32 +124,33 @@ const deleteItem = async (productId) => {
     if (confirm) {
       await axios.delete(`/api/products/${productId}`);
       state.products = state.products.filter((p) => p.id !== productId);
-      console.log("Product deleted successfully");
+      toast.success("Product deleted successfully");
     }
   } catch (error) {
+    toast.error("Product was not deleted");
     console.error("Error deleting product: ", error);
   }
 };
-const filteredProducts = computed(() => {
-  let products = [...state.products];
-  if (search.value) {
-    products = products.filter((p) =>
-      p.title.toLowerCase().includes(search.value.toLowerCase()),
-    );
-  }
-  return products;
+
+const currentPageProducts = computed(() => {
+  const start = (state.currentPage - 1) * state.itemsLimit;
+  const end = start + state.itemsLimit;
+  return state.products.slice(start, end);
 });
 
 const paginatedProducts = computed(() => {
-  const start = (state.currentPage - 1) * state.itemsLimit;
-  const end = start + state.itemsLimit;
-  return filteredProducts.value.slice(start, end);
+  if (!search.value) return currentPageProducts.value;
+
+  return currentPageProducts.value.filter(
+    (p) =>
+      p.title.toLowerCase().includes(search.value.toLowerCase()) ||
+      p.category.toLowerCase().includes(search.value.toLowerCase()),
+  );
 });
 
 onMounted(() => {
   fetchProducts();
   getCartItems();
-  console.log(state.products);
 });
 </script>
 
@@ -173,7 +177,7 @@ onMounted(() => {
           <input
             type="text"
             placeholder="Search"
-            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded focus:outline-none"
             id="search"
             name="search"
             v-model="search"
@@ -252,18 +256,16 @@ onMounted(() => {
         </div>
       </div>
       <!-- Sort and Sell Button -->
-      <div class="flex gap-3 w-full sm:w-auto">
+      <div class="flex gap-4 w-full sm:w-auto">
         <!-- Sort Dropdown -->
-        <div class="flex flex-row items-center justify-center gap-4">
-          <p
-            class="font-lexend font-normal leading-[22px] tracking-normal"
-          >
+        <div class="flex flex-row items-center justify-center gap-3">
+          <p class="font-lexend font-normal leading-[22px] tracking-normal">
             Sort by
           </p>
           <select
             @change="handleSort"
             v-model="sortBy"
-            class="w-full sm:w-auto px-4 py-3 border-2 border-gray-200 rounded-lg bg-white hover:bg-gray-50 focus:outline-none cursor-pointer font-lexend font-normal leading-[22px] tracking-normal"
+            class="w-full sm:w-auto px-4 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none cursor-pointer font-lexend font-medium text-gray-700"
           >
             <option value="name-az">A - Z</option>
             <option value="name-za">Z - A</option>
@@ -289,7 +291,7 @@ onMounted(() => {
     <!-- Product Grid -->
     <div
       v-else
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-8"
     >
       <!-- Product Card -->
       <div
@@ -312,12 +314,12 @@ onMounted(() => {
         </div>
         <div class="p-4">
           <h3
-            class="text-[#171717] font-lexend font-light text-sm leading-[15px] tracking-normal "
+            class="text-[#171717] font-lexend font-light text-sm leading-[15px] tracking-normal"
           >
             {{ product?.title }}
           </h3>
           <p
-            class="text-[#171717] font-lexend font-normal text-base leading-[2rem] tracking-normal "
+            class="text-[#171717] font-lexend font-normal text-base leading-[2rem] tracking-normal mb-1"
           >
             £{{ product.price }}
           </p>
@@ -387,7 +389,7 @@ onMounted(() => {
           :class="[
             'w-10 h-10 flex items-center justify-center rounded border text-sm font-medium',
             state.currentPage === page
-              ? 'bg-gray-200 border-gray-400 text-gray-900'
+              ? 'bg-gray-100 border-gray-400 text-gray-900'
               : 'border-gray-300 text-gray-700 hover:bg-gray-50',
           ]"
         >
