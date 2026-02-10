@@ -1,11 +1,18 @@
 <script setup>
-import {reactive, watch, ref, computed } from "vue";
+import { reactive, watch, ref, computed } from "vue";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
+import { handleFileUpload } from "@/composables/useStorage";
 
 const file = ref(null);
+
 const emit = defineEmits(["close", "submit"]);
 const isEditMode = computed(() => !!props.product);
+
+const onFileChange = async (event, file) => {
+  const imageURL = await handleFileUpload(event, file);
+  form.uploadedImage = imageURL;
+};
 
 const props = defineProps({
   product: {
@@ -50,27 +57,6 @@ function triggerFileInput() {
     console.error("fileInput ref is not an input element:", file.value);
   }
 }
-
-const handleFileUpload = async (event) => {
-  file.value = event.target.files[0];
-  if (!file.value) return;
-
-  const formData = new FormData();
-  formData.append("file", file.value);
-  formData.append("upload_preset", import.meta.env.VITE_UPLOAD_PRESET);
-
-  try {
-    const cloudRes = await axios.post(
-      `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUD_NAME}/image/upload`,
-      formData,
-    );
-
-    form.uploadedImage = cloudRes.data.secure_url; // store URL
-    console.log("Uploaded Image URL:", form.uploadedImage);
-  } catch (err) {
-    console.error("Upload failed:", err);
-  }
-};
 
 const handleSubmit = async () => {
   if (!form.uploadedImage) {
@@ -170,7 +156,7 @@ watch(
                 type="file"
                 class="hidden"
                 accept="image/*"
-                @change="handleFileUpload"
+                @change="onFileChange"
               />
             </div>
           </div>

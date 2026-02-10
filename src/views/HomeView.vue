@@ -3,7 +3,7 @@ import { computed, reactive, onMounted, ref } from "vue";
 import ProductForm from "@/components/ProductForm.vue";
 import axios from "axios";
 import { useToast } from "vue-toastification";
-import { useFetchProducts } from "@/composables/useAPIs";
+import { useFetchProducts, deleteItem, getData } from "@/composables/useAPIs";
 
 const toast = useToast();
 const search = ref("");
@@ -12,17 +12,17 @@ const sortBy = ref("price-low");
 const editingProduct = ref(null);
 const isCartOpen = ref(false);
 
-const toggleCart = () => {
-  isCartOpen.value = !isCartOpen.value;
-};
-const cartCount = computed(() => state.cart.length);
-
 const state = reactive({
   products: [],
   cart: [],
   currentPage: 1,
   itemsLimit: 4,
 });
+
+const toggleCart = () => {
+  isCartOpen.value = !isCartOpen.value;
+};
+const cartCount = computed(() => state.cart.length);
 
 const openPopup = () => {
   isPopupOpen.value = true;
@@ -61,13 +61,13 @@ const OpenEditForm = async (product) => {
 };
 
 const getCartItems = () => {
-  const cart = JSON.parse(localStorage.getItem("products")) || [];
+  const cart = getData("products") || [];
+  console.log("cart", cart);
   state.cart = cart;
-  return cart;
 };
 
 const addToCart = (product) => {
-  const cartItems = getCartItems();
+  const cartItems = getData("products") || [];
   if (cartItems.some((item) => item.id === product.id)) return;
   cartItems.push(product);
   localStorage.setItem("products", JSON.stringify(cartItems));
@@ -75,21 +75,11 @@ const addToCart = (product) => {
 };
 
 const removeFromCart = (productId) => {
-  const cart = getCartItems();
+  const cart = getData("products") || [];
   const updatedCart = cart.filter((item) => item.id !== productId);
   localStorage.setItem("products", JSON.stringify(updatedCart));
   state.cart = updatedCart;
 };
-
-// const fetchProducts = async () => {
-//   try {
-//     const res = await axios.get("/api/products");
-//     state.products = res.data;
-//     handleSort();
-//   } catch (error) {
-//     console.error("Error fetching products: ", error);
-//   }
-// };
 
 const handleSubmit = async (product) => {
   if (editingProduct.value) {
@@ -119,18 +109,9 @@ const handleSubmit = async (product) => {
   }
 };
 
-const deleteItem = async (productId) => {
-  try {
-    const confirm = window.confirm("Delete this product?");
-    if (confirm) {
-      await axios.delete(`/api/products/${productId}`);
-      state.products = state.products.filter((p) => p.id !== productId);
-      toast.success("Product deleted successfully");
-    }
-  } catch (error) {
-    toast.error("Product was not deleted");
-    console.error("Error deleting product: ", error);
-  }
+const handleDelete = async (productId) => {
+  await deleteItem(productId);
+  state.products = state.products.filter((p) => p.id !== productId);
 };
 
 const currentPageProducts = computed(() => {
@@ -346,7 +327,7 @@ onMounted(async () => {
                 <i class="pi pi-cart-plus text-lg"></i>
               </button>
               <button
-                @click="deleteItem(product.id)"
+                @click="handleDelete(product.id)"
                 class="w-9 h-9 text-black border border-[#E5E5E5] rounded p-2 hover:text-red-600"
                 title="Delete"
               >
