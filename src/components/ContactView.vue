@@ -1,17 +1,10 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
 
-const count = ref(0)
-
-onMounted(() => {
-  count.value = Number(localStorage.getItem('count')) || 0
-})
-
-watch(count, (newValue) => {
-  localStorage.setItem('count', newValue)
-})
+import { useCounterStore } from "@/stores/counter";
+const counter = useCounterStore();
 </script>
 
 <template>
-  <button @click="count++">B: {{ count }}</button>
+    <p>B: {{ counter.count }}</p>
+  <button @click="counter.decrement" class="px-6 py-2 bg-gray-200">Remove -</button>
 </template>
